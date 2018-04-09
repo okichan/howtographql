@@ -15,26 +15,32 @@ class LinkList extends Component {
 
     const linksToRender = this.props.feedQuery.feed.links
 
-    return (
-      <div>
-      {linksToRender.map((link, index) => (
-        <Link key={link.id} index={index} link={link} />
-      ))}
-    </div>
-    )
+    return <div>{linksToRender.map((link, index) => <Link key={link.id} updateStoreAfterVote={this._updateCacheAfterVote} index={index} link={link}/>)}</div>
+  }
+
+  _updateCacheAfterVote = (store, createVote, linkId) => {
+    // 1
+    const data = store.readQuery({ query: FEED_QUERY })
+
+    // 2
+    const votedLink = data.feed.links.find(link => link.id === linkId)
+    votedLink.votes = createVote.link.votes
+
+    // 3
+    store.writeQuery({ query: FEED_QUERY, data })
   }
 }
 
-const FEED_QUERY = gql`
-# 2
-query feedQuery {
-  feed {
-    links {
-      id
-      createdAt
-      url
-      description
-      postedBy {
+export const FEED_QUERY = gql`
+  # 2
+  query feedQuery {
+    feed {
+      links {
+        id
+        createdAt
+        url
+        description
+        postedBy {
           id
           name
         }
@@ -44,9 +50,9 @@ query feedQuery {
             id
           }
         }
+      }
     }
   }
-}
 `
 
-export default graphql(FEED_QUERY, { name: 'feedQuery' }) (LinkList)
+export default graphql(FEED_QUERY, { name: 'feedQuery' })(LinkList)

@@ -13,7 +13,7 @@ class Link extends Component {
           <span className="gray">{this.props.index + 1}.</span>
           {authToken && (
             <div className="ml1 gray f11" onClick={() => this._voteForLink()}>
-              ▲
+              👍
             </div>
           )}
         </div>
@@ -38,6 +38,9 @@ class Link extends Component {
     await this.props.voteMutation({
       variables: {
         linkId,
+      },
+      update: (store, { data: { vote } }) => {
+        this.props.updateStoreAfterVote(store, vote, linkId)
       },
     })
   }
